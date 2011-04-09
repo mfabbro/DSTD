@@ -1,1 +1,39 @@
-Test 1.2
+-------------------------------------------------------------------
+README  : Digital Signal Timing Diagram Ruby Library
+Version : 1.0
+Author  : Mark Fabbro
+Date    : 2011/04/09
+ 
+-------------------------------------------------------------------
+  Description:
+-------------------------------------------------------------------
+A ruby library which allows the user to create simple digital signal 
+timing diagrams.
+
+
+-------------------------------------------------------------------
+  Installation:
+-------------------------------------------------------------------
+1. Install ImageMagick Library
+2. Install the rmagick ruby gem
+
+OSX specific installation:
+1. Install Xcode: 
+		Can be found on the installation disk that shipped with 
+		your Mac or downloaded from the apple website. 
+
+2. Install ImageMagick library and its dependencies:
+		git clone https://github.com/maddox/magick-installer.git
+		sh ./magick-installer/magick-installer.sh
+
+3. Install rmagick rubygem:
+		sudo gem install rmagick
+
+
+-------------------------------------------------------------------
+  Library Use:
+-------------------------------------------------------------------
+See example.rb and exoutput.jpg
+
+
+-------------------------------------------------------------------
