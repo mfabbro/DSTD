@@ -6,9 +6,9 @@ unless $DSTD_Required
 	include Magick
 
 # ----------------------------------------------------
-#	Digital Signal Timing Diagram Ruby Library
+# Digital Signal Timing Diagram Ruby Library
 # Author: Mark Fabbro
-# 	Date: 2011/03/25
+# Date  : 2011/03/25
 # ----------------------------------------------------
 
 	class GeneralSignal
@@ -40,15 +40,15 @@ unless $DSTD_Required
 	end
 
 	class BinarySignal < GeneralSignal
-		# starval			-	Integer: the binary value of this signal before the first toggle
-		# toggletime 	-	Array of Integers: An array of the times (in clock ticks) when the output
-		#								of this signal will toggle its value
+		# starval      -  Integer: the binary value of this signal before the first toggle
+		# toggletime   -  Array of Integers: An array of the times (in clock ticks) when the output
+		#                 of this signal will toggle its value
 		def initialize(config)
-			@name			  = config[:label]
-			@startval 	= config[:initial_value]
+			@name       = config[:label]
+			@startval   = config[:initial_value]
 			@toggletime = config[:toggle_on_clk_ticks]
-			@tpd			 	= config[:tpd]
-			@dependency	= config[:signal_dependency] || false
+			@tpd        = config[:tpd]
+			@dependency = config[:signal_dependency] || false
 		end
 
 		def val_at(tick)
@@ -58,29 +58,28 @@ unless $DSTD_Required
 	end
 
 	class SignalBus < GeneralSignal
-		# startval 	- 	String: the label used to decribe the vector of binary signals that this 'data' represents 
-		#								before the pattern commences
-		# endval   	- 	String: the label used to describe the vector of binary signals that this 'data' represents
-		#								after the data pattern ends.
-		# data	  	- 	Array of Strings: An array of strings which represent the vector of signals. 
-		#								Will be repeated  
-		#								in sequence, after the startime and before the endtick.
-		#	starttick	-		Integer: the time (in clock ticks) when the data commences.
-		#	endtick		-		Integer: the time (in clock ticks) when the data will stop repeating.
+		# startval   -   String: the label used to describe the vector of binary signals that this bus represents 
+		#                before the pattern commences
+		# endval     -   String: the label used to describe the vector of binary signals that this bus represents
+		#                after the data pattern ends.
+		# data       -   Array of Strings: An array of strings which represent the vector of signals. This will
+		#                cycle in sequence, after the starttick and before the endtick.
+		#  starttick -   Integer: the time (in clock ticks) when the data commences its cycle.
+		#  endtick   -   Integer: the time (in clock ticks) when the data will change to its endval.
 		attr_reader :tcd
 		def initialize(config)
-				@name			  = config[:label]
+				@name       = config[:label]
 				@startval   = config[:initial_value]
-				@endval 	  = config[:final_value]
-				@data 		  = config[:data_sequence]
+				@endval     = config[:final_value]
+				@data       = config[:data_sequence]
 				@starttick  = config[:commences_on_clk_tick]
-				@endtick  	= config[:finishes_on_clk_tick]
-				@tpd		  	= config[:tpd] || 0
-				@tcd		  	= config[:tcd] || nil
-				@dependency	= config[:signal_dependency] || false
+				@endtick    = config[:finishes_on_clk_tick]
+				@tpd        = config[:tpd] || 0
+				@tcd        = config[:tcd] || nil
+				@dependency = config[:signal_dependency] || false
 		end
 		def val_at(tick)
-			if 		tick < @starttick
+			if tick < @starttick
 				output = @startval
 			elsif @endtick and tick > @endtick
 				output = @endval
@@ -95,15 +94,15 @@ unless $DSTD_Required
 
 	class TimingDiagram
 		def initialize(config)
-			@clockperiod = config[:clockperiod] || 1000	
-			@clockcycles = config[:clockcycles] + 1 
+			@clockperiod  = config[:clockperiod] || 1000  
+			@clockcycles  = config[:clockcycles] + 1 
 			@canvas_width = 100 + @clockcycles*@clockperiod
 		end
-		#	inputsigs	-	Array of *Signal Instances.
+		#  inputsigs  -  Array of *Signal Instances.
 		def self.get_tpd(tick, inputsigs) 
 			tpd_array = [0]
 			inputsigs.each do |s|
-				if s.val_at(tick) != s.val_at(tick-1)	
+				if s.val_at(tick) != s.val_at(tick-1)  
 					tpd_array << s.tpd_at(tick)
 				end
 			end
@@ -111,20 +110,20 @@ unless $DSTD_Required
 		end
 
 		def draw_signal(signal, d, v_height)
-			v_high = 0
-			chg_time = 5  #TODO somehow make this currect ish.
-			v_low  = v_height
-			x_curr = 0
+			v_high   = 0
+			chg_time = 5      #NOTE This changes the signal transition speed in the timing diagram.
+			v_low    = v_height
+			x_curr   = 0
 			d.styles(:stroke=>'black', :stroke_width=>2, :stroke_linecap=>'round')
 			if signal.class == ClockSignal
 				@clockcycles.times do |cc|
 					unless cc.eql? 0
-						d.line(x_curr, v_low,   x_curr,                    v_high) 										# Draw Rising Edge
-						d.line(x_curr, v_low,   x_curr,                    @canvas_height).styles(:stroke=>"black",:stroke_dasharray=>[20,8], :opacity=> 0.5, :stroke_width=>1, :fill=>'none')
+						d.line(x_curr, v_low, x_curr, v_high)                       # Draw Rising Edge
+						d.line(x_curr, v_low, x_curr, @canvas_height).styles(:stroke=>"black",:stroke_dasharray=>[20,8], :opacity=> 0.5, :stroke_width=>1, :fill=>'none')
 					end
-					d.line(x_curr, v_high, (x_curr += @clockperiod / 2), v_high)	# Draw High Clock
-					d.line(x_curr, v_high, x_curr,                       v_low)											# Draw Falling Edge
-					d.line(x_curr, v_low,  (x_curr += @clockperiod / 2), v_low)											# Draw Low Clock
+					d.line(x_curr, v_high, (x_curr += @clockperiod / 2), v_high)  # Draw High Clock
+					d.line(x_curr, v_high, x_curr,                       v_low)   # Draw Falling Edge
+					d.line(x_curr, v_low,  (x_curr += @clockperiod / 2), v_low)   # Draw Low Clock
 				end
 			elsif signal.class == BinarySignal
 				@clockcycles.times do |cc|
@@ -142,7 +141,7 @@ unless $DSTD_Required
 				end
 			elsif signal.class == SignalBus
 				@clockcycles.times do |cc|
-					if signal.val_at(cc) == signal.val_at(cc-1)							#No Change.
+					if signal.val_at(cc) == signal.val_at(cc-1)                   # No Change.
 						x_next = x_curr + @clockperiod
 						d.line(x_curr, v_high, x_next, v_high)
 						d.line(x_curr, v_low,  x_next, v_low)
@@ -151,7 +150,7 @@ unless $DSTD_Required
 							d.text(x_curr + 5, (v_low - v_high)/1.5){|t| t.tspan(signal.val_at(cc).to_s).styles(:font_size=>@font_size, :stroke_width=>1)}
 						end
 						x_curr = x_next
-					else																										#Data Changed
+					else                                                          # Data Changed
 
 						if signal.tcd.nil?
 							d.line(x_curr, v_high, (x_curr + signal.tpd_at(cc, chg_time)), v_high)
@@ -165,8 +164,8 @@ unless $DSTD_Required
 						x_curr += chg_time
 
 						endcycle = @clockperiod - signal.tpd_at(cc, chg_time) - chg_time
-						d.line(x_curr, v_high, (x_curr + endcycle), v_high)		
-						d.line(x_curr, v_low,  (x_curr + endcycle), v_low)		
+						d.line(x_curr, v_high, (x_curr + endcycle), v_high)    
+						d.line(x_curr, v_low,  (x_curr + endcycle), v_low)    
 
 						d.text(x_curr + 5, (v_low - v_high)/1.5){|t| t.tspan(signal.val_at(cc).to_s).styles(:font_size=>@font_size, :stroke_width=>1)}
 						x_curr += endcycle
@@ -177,11 +176,11 @@ unless $DSTD_Required
 
 		def generate_diagram(config)
 			signals  = config[:signal_list] || []
-			filename = config[:output_filename] << '.jpg'
-			puts "Generating Image: ./#{filename}"
+			filename = config[:output_filename] << '.jpg' #NOTE: Feel free to edit .jpg to any of the ImageMagick
+			puts "Generating Image: ./#{filename}"        #      supported extensions.
 			@font_size = 20
-			signal_gap	= @font_size + 20
-			v_height	= @font_size + 20
+			signal_gap  = @font_size + 20
+			v_height  = @font_size + 20
 			transition_width = 15
 			curr_x   = 0
 			curr_y   = signal_gap
@@ -199,10 +198,11 @@ unless $DSTD_Required
 					# Name the Signal
 					canvas.g.translate(0, curr_y) do |grp|
 						# Names the Signal that will be rendered.
-						grp.text(4, v_height/1.5) {|t| t.tspan(sig.name).styles(:font_size=>@font_size, :fill=>'black')}	
+						grp.text(4, v_height/1.5) {|t| t.tspan(sig.name).styles(:font_size=>@font_size, :fill=>'black')}  
 					end
 
-					# Draw the Signal TODO DEAL WITH COLOURS HERE.
+					# NOTE If signal colours ever become custom, we will need to pass it through to the draw_signal 
+					# command here.
 					canvas.g.translate(x_start, curr_y) do |grp|
 						# Renders the signal.
 						draw_signal(sig, grp, v_height)
@@ -210,7 +210,7 @@ unless $DSTD_Required
 					curr_y += signal_gap + v_height
 				end
 			end
-			pic.draw.write(filename)	
+			pic.draw.write(filename)  
 			puts "Finished"
 		end
 	end
